@@ -33,10 +33,11 @@ impl Hittable for Sphere {
                 return false;
             };
         }
+
         rec.t = root;
         rec.p = ray.at(rec.t);
         rec.normal = (rec.p - self.center) / self.radius;
-        println!("Hit sphere!");
+
         true
     }
 }

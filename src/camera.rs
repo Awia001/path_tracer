@@ -32,12 +32,17 @@ impl Camera {
     pub fn get_ray(&self, u: f64, v: f64) -> Ray {
         Ray {
             orig: self.origin,
-            dir: self.lower_left + u * self.horizontal + v * self.vertical - self.origin,
+            dir: (self.lower_left + u * self.horizontal + v * self.vertical) - self.origin,
         }
     }
 
     pub fn translate_x(&mut self, by: f64) {
         self.origin.0[0] = (self.origin.x()) + by;
+        self.calc_frame_for_origin(self.origin);
+    }
+
+    pub fn translate_z(&mut self, by: f64) {
+        self.origin.0[2] = (self.origin.x()) + by;
         self.calc_frame_for_origin(self.origin);
     }
 

@@ -82,7 +82,7 @@ impl Vec3 {
     }
 
     pub fn z(&self) -> f64 {
-        Simd::as_array(&self.0)[1]
+        Simd::as_array(&self.0)[2]
     }
 }
 

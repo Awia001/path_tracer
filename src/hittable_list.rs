@@ -28,7 +28,6 @@ impl Hittable for HittableList {
 
         for hittable in &self.world {
             if hittable.hit(ray, t_min, closest_so_far, &mut temp_rec) {
-                println!("Hit object");
                 hit_anything = true;
                 closest_so_far = temp_rec.t;
                 *rec = temp_rec;

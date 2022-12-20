@@ -45,6 +45,7 @@ fn create_sdl_canvas(
 
     let window = video_subsystem
         .window("raytracer", width, height)
+        .opengl()
         .position_centered()
         .build()
         .unwrap();
@@ -62,7 +63,6 @@ fn ray_colour(ray: &Ray, world: &impl Hittable) -> Vec3 {
     };
 
     if world.hit(ray, 0.0, f64::INFINITY, &mut rec) {
-        println!("Hit object");
         return 0.5 * (rec.normal + Vec3::new(1.0, 1.0, 1.0));
     }
 
@@ -71,12 +71,30 @@ fn ray_colour(ray: &Ray, world: &impl Hittable) -> Vec3 {
     (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0)
 }
 
+fn constrain_colour_instant(colour: &mut Vec3, samples: u32) -> Color {
+    let mut r = colour.x();
+    let mut g = colour.y();
+    let mut b = colour.z();
+
+    let scale = 1. / samples as f64;
+
+    r = r * scale;
+    g = g * scale;
+    b = b * scale;
+
+    let r = r.clamp(0., 0.999);
+    let g = g.clamp(0., 0.999);
+    let b = b.clamp(0., 0.999);
+
+    Color::RGB((r * 255.0) as u8, (g * 255.0) as u8, (b * 255.0) as u8)
+}
+
 fn constrain_colour<const T: usize>(x: usize, y: usize, sample_map: &SampleMap<T>) -> Color {
     let mut values = sample_map.get_values(x, y);
     let scale = 1. / values.1 as f64;
     values.0 *= Simd::splat(scale);
     values.0 = values.0.simd_clamp(Simd::splat(0.), Simd::splat(0.999));
-    values.0 *= Simd::splat(256.);
+    values.0 *= Simd::splat(255.);
     let cast_vec = Simd::cast::<u8>(values.0);
     Color::RGB(cast_vec[0], cast_vec[1], cast_vec[2])
 }
@@ -105,7 +123,7 @@ fn main() {
     const IMAGE_WIDTH: u32 = 400;
     const IMAGE_HEIGHT: u32 = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as u32;
     const FULL_SIZE: usize = (IMAGE_HEIGHT * IMAGE_WIDTH) as usize;
-    let samples_per_pixel = 100;
+    let samples_per_pixel = 1;
 
     let created = create_sdl_canvas(IMAGE_WIDTH, IMAGE_HEIGHT);
     let mut canvas = created.0;
@@ -139,18 +157,22 @@ fn main() {
     'running: loop {
         let now = Instant::now();
 
-        // for j in 0..image_height {
-        //     for i in 0..=image_width {
+        // for j in (0..IMAGE_HEIGHT).rev() {
+        //     println!("Lines left: {j}");
+        //     for i in 0..=IMAGE_WIDTH {
         //         let mut colour = Vec3::new(0., 0., 0.);
-        //         for _ in 0..=samples_per_pixel {
+        //         for _ in 0..samples_per_pixel {
         //             let jitter_u = uniform.sample(&mut rng);
         //             let jitter_v = uniform.sample(&mut rng);
-        //             let u = (i as f64 + jitter_u) / (image_width - 1) as f64;
-        //             let v = ((image_height - j) as f64 + jitter_v) / (image_height - 1) as f64;
+        //             let u = (i as f64 + jitter_u) / (IMAGE_WIDTH - 1) as f64;
+        //             let v = ((IMAGE_HEIGHT - j) as f64 + jitter_v) / (IMAGE_HEIGHT - 1) as f64;
         //             let r = camera.get_ray(u, v);
         //             colour += ray_colour(&r, &hittables);
+        //             // println!("Colour: {colour:?}")
         //         }
-        //         canvas.set_draw_color(constrain_colour(&mut colour, samples_per_pixel));
+        //         let render_colour = constrain_colour_instant(&mut colour, samples_per_pixel);
+        //         println!("Colour to render: {render_colour:?}");
+        //         canvas.set_draw_color(render_colour);
         //         canvas.draw_point(Point::new(i as i32, j as i32)).ok();
         //     }
         // }
@@ -158,13 +180,14 @@ fn main() {
         // While less than 1/60 seconds has elapsed
         while now.elapsed().as_secs_f64() < 1. / 60. {
             // Get a random pixel
-            let i = rng.gen_range(0..IMAGE_WIDTH);
-            let j = rng.gen_range(0..IMAGE_HEIGHT);
+            let i = rng.gen_range(0..IMAGE_WIDTH) as f64;
+            let j = rng.gen_range(0..IMAGE_HEIGHT) as f64;
 
             // Add jitter
-            let u = i as f64 + (uniform.sample(&mut rng) / (IMAGE_WIDTH - 1) as f64);
-            let v =
-                (IMAGE_HEIGHT - j) as f64 + (uniform.sample(&mut rng) / (IMAGE_HEIGHT - 1) as f64);
+            let jitter_u = uniform.sample(&mut rng);
+            let jitter_v = uniform.sample(&mut rng);
+            let u = (i as f64 + jitter_u) / (IMAGE_WIDTH - 1) as f64;
+            let v = ((IMAGE_HEIGHT as f64 - j) as f64 + jitter_v) / (IMAGE_HEIGHT - 1) as f64;
 
             // Determine if the ray intersects any objects
             let ray = ray_colour(&camera.get_ray(u, v), &hittables);
@@ -203,6 +226,20 @@ fn main() {
                     ..
                 } => {
                     camera.translate_x(0.1);
+                    sample_map.invalidate_samples();
+                }
+                Event::KeyDown {
+                    keycode: Some(Keycode::Up),
+                    ..
+                } => {
+                    camera.translate_z(-0.1);
+                    sample_map.invalidate_samples();
+                }
+                Event::KeyDown {
+                    keycode: Some(Keycode::Down),
+                    ..
+                } => {
+                    camera.translate_z(0.1);
                     sample_map.invalidate_samples();
                 }
                 _ => {}
