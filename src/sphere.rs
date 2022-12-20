@@ -40,3 +40,27 @@ impl Hittable for Sphere {
         true
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::hit_record::HitRecord;
+    use crate::hittable::Hittable;
+    use crate::ray::Ray;
+    use crate::sphere::Sphere;
+    use crate::vec3::Vec3;
+
+    #[test]
+    fn test_sphere_hit() {
+        let sphere = Sphere {
+            center: Vec3::new(0., 0., -2.),
+            radius: 1.5,
+        };
+        let ray = Ray::new(Vec3::new(0., 0., 0.), Vec3::new(0., 0., -1.));
+        let mut hit_record = HitRecord {
+            ..Default::default()
+        };
+
+        let hit = sphere.hit(&ray, 0., f64::INFINITY, &mut hit_record);
+        assert_eq!(hit, true);
+    }
+}

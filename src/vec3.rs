@@ -20,37 +20,38 @@ impl Vec3 {
     }
 
     pub fn dot(&self, other: &Vec3) -> f64 {
-        self.0[0] * other.0[0] + self.0[1] * other.0[1] + self.0[2] * other.0[2]
-        //Simd::reduce_sum(self.0 * other.0)
+        // self.0[0] * other.0[0] + self.0[1] * other.0[1] + self.0[2] * other.0[2]
+        Simd::reduce_sum(self.0 * other.0)
     }
 
     pub fn cross(&self, other: &Vec3) -> Self {
-        Self(Simd::from_array([
-            self.0[1] * other.0[2] - self.0[2] * other.0[1],
-            self.0[1] * other.0[0] - self.0[0] * other.0[2],
-            self.0[0] * other.0[1] - self.0[1] * other.0[0],
+        // Self(Simd::from_array([
+        //     self.0[1] * other.0[2] - self.0[2] * other.0[1],
+        //     self.0[2] * other.0[0] - self.0[0] * other.0[2],
+        //     self.0[0] * other.0[1] - self.0[1] * other.0[0],
+        //     0.,
+        // ]))
+
+        // Who knows if marshalling to several simd values is faster than the previous approach?
+        let arr_a = Simd::as_array(&self.0);
+        let arr_b = Simd::as_array(&other.0);
+
+        let arr_left = [
+            arr_a[1] * arr_b[2],
+            arr_a[2] * arr_b[0],
+            arr_a[0] * arr_b[1],
             0.,
-        ]))
+        ];
+        let arr_right = [
+            arr_a[2] * arr_b[1],
+            arr_a[0] * arr_b[2],
+            arr_a[1] * arr_b[0],
+            0.,
+        ];
 
-        // let arr_a = Simd::as_array(&self.0);
-        // let arr_b = Simd::as_array(&other.0);
-
-        // let arr_left = [
-        //     arr_a[1] * arr_b[2],
-        //     arr_a[1] * arr_b[0],
-        //     arr_a[0] * arr_b[1],
-        //     0.,
-        // ];
-        // let arr_right = [
-        //     arr_a[2] * arr_b[1],
-        //     arr_a[0] * arr_b[2],
-        //     arr_a[1] * arr_b[0],
-        //     0.,
-        // ];
-
-        // let simd_a = Simd::from_array(arr_left);
-        // let simd_b = Simd::from_array(arr_right);
-        // Self(simd_a - simd_b)
+        let simd_a = Simd::from_array(arr_left);
+        let simd_b = Simd::from_array(arr_right);
+        Self(simd_a - simd_b)
     }
 
     pub fn length_squared(&self) -> f64 {
@@ -166,5 +167,27 @@ impl Neg for Vec3 {
 impl From<Vec3> for Simd<f64, 4> {
     fn from(value: Vec3) -> Self {
         Self::from(value.0)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::vec3::Vec3;
+
+    #[test]
+    fn test_dot_product() {
+        // Very simple dot product test
+        let a = Vec3::new(1.0, 2.0, 3.0);
+        let b = Vec3::new(4.0, 5.0, 6.0);
+
+        assert_eq!(32., a.dot(&b));
+    }
+
+    #[test]
+    fn test_cross_product() {
+        let a = Vec3::new(1.0, 2.0, 3.0);
+        let b = Vec3::new(4.0, 5.0, 6.0);
+
+        assert_eq!(Vec3::new(-3., 6., -3.), a.cross(&b));
     }
 }
