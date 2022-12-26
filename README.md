@@ -1,5 +1,5 @@
 # Rust Pathtracer, writen in rust
-A very basic pathtracer written in rust which renders using SDL2, "realtime" in the sense that it just draws whatever it has every frame and doesn't care.
+A very basic pathtracer based on "Raytracing in One Weekend" (https://raytracing.github.io/books/RayTracingInOneWeekend.html) written in rust which renders using SDL2. "Realtime" in the sense that it just draws whatever it has every frame and doesn't care.
 You must be running Rust Nightly to get access to portable simd in the standard library, I don't make the rules.
 
 Uses `vcpkg` to manage building library dependencies, make sure you have `cargo-vcpkg` installed and run `cargo vcpkg build` before running `cargo build`
