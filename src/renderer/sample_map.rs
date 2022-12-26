@@ -1,30 +1,34 @@
 use std::simd::Simd;
 use std::vec::Vec;
 
-pub struct SampleMap<const T: usize> {
+pub struct SampleMap {
     colours: Vec<Simd<f64, 4>>,
     samples: Vec<u32>,
     pub width: usize,
+    pub height: usize,
     pub max_samples: u32,
 }
 
-impl<const T: usize> Default for SampleMap<T> {
+impl Default for SampleMap {
     fn default() -> Self {
         Self {
-            colours: vec![Simd::splat(0.0); T],
-            samples: vec![0; T],
+            colours: vec![Simd::splat(0.0); 1],
+            samples: vec![0; 1],
             width: 1,
+            height: 1,
             max_samples: 1,
         }
     }
 }
 
-impl<const T: usize> SampleMap<T> {
-    pub fn new(max_samples: u32, width: usize) -> Self {
+impl SampleMap {
+    pub fn new(max_samples: u32, width: usize, height: usize) -> Self {
         Self {
             max_samples,
             width,
-            ..Default::default()
+            height,
+            colours: vec![Simd::splat(0.); width * height],
+            samples: vec![0; width * height],
         }
     }
 
@@ -63,6 +67,6 @@ impl<const T: usize> SampleMap<T> {
     }
 
     pub fn invalidate_samples(&mut self) {
-        self.samples = vec![0; T]
+        self.samples = vec![0; self.width * self.height];
     }
 }

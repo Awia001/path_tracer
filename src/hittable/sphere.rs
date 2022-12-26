@@ -1,7 +1,5 @@
-use crate::hit_record::HitRecord;
-use crate::hittable::Hittable;
-use crate::ray::Ray;
-use crate::vec3::Vec3;
+use crate::hittable::{HitRecord, Hittable};
+use crate::renderer::{Ray, Vec3};
 
 pub struct Sphere {
     pub center: Vec3,
@@ -44,11 +42,8 @@ impl Hittable for Sphere {
 
 #[cfg(test)]
 mod tests {
-    use crate::hit_record::HitRecord;
-    use crate::hittable::Hittable;
-    use crate::ray::Ray;
-    use crate::sphere::Sphere;
-    use crate::vec3::Vec3;
+    use crate::hittable::{HitRecord, Hittable, Sphere};
+    use crate::renderer::{Ray, Vec3};
 
     #[test]
     fn test_sphere_hit() {

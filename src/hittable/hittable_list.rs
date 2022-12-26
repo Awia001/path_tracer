@@ -1,6 +1,5 @@
-use crate::hit_record::HitRecord;
-use crate::hittable::Hittable;
-use crate::ray::Ray;
+use crate::hittable::{HitRecord, Hittable};
+use crate::renderer::Ray;
 
 use std::vec::Vec;
 
@@ -16,6 +15,8 @@ impl HittableList {
     pub fn add_hittable(&mut self, hittable: Box<dyn Hittable>) {
         self.world.push(hittable);
     }
+
+    pub fn from_file(filename: String) {}
 }
 
 impl Hittable for HittableList {

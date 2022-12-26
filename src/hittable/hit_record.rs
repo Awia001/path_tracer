@@ -1,4 +1,4 @@
-use crate::vec3::Vec3;
+use crate::renderer::Vec3;
 
 type Point3 = Vec3;
 

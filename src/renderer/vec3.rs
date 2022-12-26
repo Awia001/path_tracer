@@ -172,7 +172,7 @@ impl From<Vec3> for Simd<f64, 4> {
 
 #[cfg(test)]
 mod tests {
-    use crate::vec3::Vec3;
+    use crate::renderer::Vec3;
 
     #[test]
     fn test_dot_product() {

@@ -1,5 +1,4 @@
-use crate::ray::Ray;
-use crate::vec3::Vec3;
+use crate::renderer::{Ray, Vec3};
 
 use Vec3 as Point3;
 pub struct Camera {

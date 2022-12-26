@@ -1,4 +1,4 @@
-use crate::Vec3;
+use crate::renderer::Vec3;
 
 use Vec3 as Point3;
 #[derive(Copy, Clone, PartialEq, Debug)]
