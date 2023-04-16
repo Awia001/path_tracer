@@ -1,4 +1,5 @@
 use core::simd::{Simd, SimdFloat};
+use rand::Rng;
 use std::{
     f64,
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub},
@@ -84,6 +85,29 @@ impl Vec3 {
     pub fn z(&self) -> f64 {
         Simd::as_array(&self.0)[2]
     }
+
+    pub fn random() -> Vec3 {
+        Self(Simd::from_array(rand::thread_rng().gen()))
+    }
+
+    pub fn random_in_range(min: f64, max: f64) -> Vec3 {
+        Self(Simd::from_array(
+            [rand::thread_rng().gen_range(min..max); 4],
+        ))
+    }
+
+    pub fn random_in_unit_sphere() -> Vec3 {
+        loop {
+            let p = Vec3::random_in_range(-1., 1.);
+            if p.length_squared() <= 1. {
+                return p;
+            }
+        }
+    }
+
+    pub fn random_unit_vector() -> Vec3 {
+        Self::random_in_unit_sphere().unit_vector()
+    }
 }
 
 impl Add for Vec3 {
@@ -166,7 +190,7 @@ impl Neg for Vec3 {
 
 impl From<Vec3> for Simd<f64, 4> {
     fn from(value: Vec3) -> Self {
-        Self::from(value.0)
+        value.0
     }
 }
 

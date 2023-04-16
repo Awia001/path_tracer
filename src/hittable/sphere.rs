@@ -1,20 +1,22 @@
 use crate::hittable::{HitRecord, Hittable};
 use crate::renderer::{Ray, Vec3};
 
+/// A sphere Hittable that defines it's centre point and radius
 pub struct Sphere {
-    pub center: Vec3,
+    pub centre: Vec3,
     pub radius: f64,
 }
 
 impl Sphere {
-    pub fn new(center: Vec3, radius: f64) -> Self {
-        Self { center, radius }
+    pub fn new(centre: Vec3, radius: f64) -> Self {
+        Self { centre, radius }
     }
 }
 
 impl Hittable for Sphere {
+    /// impl of the Hittable trait for the Sphere
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool {
-        let oc = ray.orig - self.center;
+        let oc = ray.orig - self.centre;
         let a = ray.dir.length_squared();
         let half_b = oc.dot(&ray.dir);
         let c = oc.length_squared() - self.radius * self.radius;
@@ -33,8 +35,9 @@ impl Hittable for Sphere {
         }
 
         rec.t = root;
-        rec.p = ray.at(rec.t);
-        rec.normal = (rec.p - self.center) / self.radius;
+        rec.point = ray.at(rec.t);
+        let outward_normal = (rec.point - self.centre) / self.radius;
+        rec.set_face_normal(ray, &outward_normal);
 
         true
     }
@@ -48,7 +51,7 @@ mod tests {
     #[test]
     fn test_sphere_hit() {
         let sphere = Sphere {
-            center: Vec3::new(0., 0., -2.),
+            centre: Vec3::new(0., 0., -2.),
             radius: 1.5,
         };
         let ray = Ray::new(Vec3::new(0., 0., 0.), Vec3::new(0., 0., -1.));
@@ -57,6 +60,6 @@ mod tests {
         };
 
         let hit = sphere.hit(&ray, 0., f64::INFINITY, &mut hit_record);
-        assert_eq!(hit, true);
+        assert!(hit);
     }
 }

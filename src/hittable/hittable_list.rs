@@ -3,20 +3,26 @@ use crate::renderer::Ray;
 
 use std::vec::Vec;
 
+/// A wrapper for a vector of Hittable objects that is itself Hittable
 pub struct HittableList {
     world: Vec<Box<dyn Hittable>>,
 }
 
 impl HittableList {
+    /// Generate a new empty HittableList
     pub fn new() -> Self {
         Self { world: Vec::new() }
     }
 
+    /// Add a Hittable to the Vector of Hittables
     pub fn add_hittable(&mut self, hittable: Box<dyn Hittable>) {
         self.world.push(hittable);
     }
 
-    pub fn from_file(filename: String) {}
+    /// Generate the list of Hittables from a file (TBD)
+    pub fn from_file(filename: String) {
+        todo!();
+    }
 }
 
 impl Hittable for HittableList {

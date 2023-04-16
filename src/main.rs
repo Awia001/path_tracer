@@ -12,9 +12,9 @@ fn main() {
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
     const IMAGE_WIDTH: u32 = 400;
     const IMAGE_HEIGHT: u32 = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as u32;
-    const FULL_SIZE: usize = (IMAGE_HEIGHT * IMAGE_WIDTH) as usize;
-    const SAMPLES_PER_PIXEL: u32 = 1;
+    const SAMPLES_PER_PIXEL: u32 = 5;
 
+    println!("{}:{} Creating renderer", file!(), line!());
     let mut renderer = Renderer::new(IMAGE_HEIGHT, IMAGE_WIDTH, SAMPLES_PER_PIXEL);
 
     let mut event_pump = renderer.get_event_pump();
