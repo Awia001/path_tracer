@@ -34,19 +34,4 @@ impl Camera {
             dir: (self.lower_left + u * self.horizontal + v * self.vertical) - self.origin,
         }
     }
-
-    pub fn translate_x(&mut self, by: f64) {
-        self.origin.0[0] = (self.origin.x()) + by;
-        self.calc_frame_for_origin(self.origin);
-    }
-
-    pub fn translate_z(&mut self, by: f64) {
-        self.origin.0[2] = (self.origin.x()) + by;
-        self.calc_frame_for_origin(self.origin);
-    }
-
-    fn calc_frame_for_origin(&mut self, origin: Point3) {
-        self.lower_left =
-            origin - self.horizontal / 2.0 - self.vertical / 2.0 - Vec3::new(0.0, 0.0, 1.0);
-    }
 }

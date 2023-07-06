@@ -20,7 +20,8 @@ impl HittableList {
     }
 
     /// Generate the list of Hittables from a file (TBD)
-    pub fn from_file(filename: String) {
+    #[allow(dead_code)]
+    pub fn from_file(_filename: String) {
         todo!();
     }
 }

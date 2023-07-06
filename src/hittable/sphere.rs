@@ -59,7 +59,7 @@ mod tests {
             ..Default::default()
         };
 
-        let hit = sphere.hit(&ray, 0., f64::INFINITY, &mut hit_record);
+        let hit = sphere.hit(&ray, 0.0001, f64::MAX, &mut hit_record);
         assert!(hit);
     }
 }

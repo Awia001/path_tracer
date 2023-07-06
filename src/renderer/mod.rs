@@ -1,11 +1,11 @@
 mod camera;
 mod ray;
 mod renderer;
-mod sample_map;
 mod vec3;
+mod vec3simd;
 
-pub use camera::Camera;
-pub use ray::Ray;
-pub use renderer::Renderer;
-pub use sample_map::SampleMap;
-pub use vec3::Vec3;
+pub use self::camera::Camera;
+pub use self::ray::Ray;
+pub use self::renderer::Renderer;
+pub use self::vec3::Vec3;
+pub use self::vec3simd::Vec3Simd;
