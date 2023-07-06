@@ -1,7 +1,7 @@
 use indicatif::ProgressBar;
 use rand::distributions::Uniform;
 use rand::prelude::*;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 use crate::hittable::{HitRecord, Hittable, HittableList, Sphere};
 use crate::renderer::{Camera, Ray, Vec3};
