@@ -1,6 +1,5 @@
-use crate::renderer::Vec3;
-
-use Vec3 as Point3;
+type Point3 = nalgebra::Vector3<f64>;
+type Vec3 = nalgebra::Vector3<f64>;
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub struct Ray {
     pub orig: Point3,

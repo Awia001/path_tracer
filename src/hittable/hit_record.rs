@@ -1,5 +1,6 @@
-use crate::renderer::{Ray, Vec3};
+use crate::renderer::Ray;
 
+type Vec3 = nalgebra::Vector3<f64>;
 type Point3 = Vec3;
 
 /// A record of where a Ray intersected with a Hittable, will be used for reflection, refraction, shading and much more!

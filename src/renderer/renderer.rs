@@ -4,8 +4,9 @@ use rand::prelude::*;
 use std::time::Instant;
 
 use crate::hittable::{HitRecord, Hittable, HittableList, Sphere};
-use crate::renderer::{Camera, Ray, Vec3};
+use crate::renderer::{Camera, Ray};
 
+type Vec3 = nalgebra::Vector3<f64>;
 pub struct Renderer {
     camera: Camera,
     hittables: HittableList,
@@ -55,9 +56,7 @@ impl Renderer {
         let bar = ProgressBar::new(self.height);
         for j in (0..self.height).rev() {
             for i in 0..self.width {
-                let mut colour = Vec3 {
-                    ..Default::default()
-                };
+                let mut colour = Vec3::default();
                 for _ in 0..self.max_samples {
                     let u_jitter = uniform_dist.sample(&mut thread_rng());
                     let v_jitter = uniform_dist.sample(&mut thread_rng());
@@ -69,7 +68,7 @@ impl Renderer {
                         self.max_depth,
                     )
                 }
-                let rgb_colour = colour.constrain_colour(self.max_samples);
+                let rgb_colour = Self::constrain_colour(&colour, self.max_samples);
                 image.put_pixel(i as u32, j as u32, rgb_colour);
             }
             bar.inc(1);
@@ -87,16 +86,14 @@ impl Renderer {
 
         // Have we reached recursion depth?
         if depth == 0 {
-            return Vec3 {
-                ..Default::default()
-            };
+            return Vec3::default();
         }
 
         // If we hit a hittable in the world
         if world.hit(ray, 0.001, f64::MAX, &mut rec) {
             // Generate a random vector from the point where we hit, the normal and a unit vector in random direction inside the unit sphere on that surface
             // This is a reasonable aproximation to Lambertian reflectance
-            let target = rec.point + rec.normal + Vec3::random_unit_vector();
+            let target = rec.point + rec.normal + Self::random_unit_vector();
 
             // Return the colour of that ray (at half power)
             return 0.5
@@ -105,8 +102,57 @@ impl Renderer {
         }
 
         // If we didn't hit anything then lerp between white and a kind of blue as we go up the screen
-        let unit_direction = ray.dir.unit_vector();
+        let unit_direction = ray.dir.normalize();
         let t = 0.5 * (unit_direction.y + 1.0);
         Vec3::new(1.0, 1.0, 1.0).lerp(&Vec3::new(0.5, 0.7, 1.0), t)
+    }
+
+    pub fn random_in_range(min: f64, max: f64) -> Vec3 {
+        Vec3::new(
+            rand::thread_rng().gen_range(min..max),
+            rand::thread_rng().gen_range(min..max),
+            rand::thread_rng().gen_range(min..max),
+        )
+    }
+
+    pub fn random_in_unit_sphere() -> Vec3 {
+        loop {
+            let p = Self::random_in_range(-1., 1.);
+            if p.magnitude_squared() >= 1. {
+                continue;
+            }
+            return p;
+        }
+    }
+
+    fn random_unit_vector() -> Vec3 {
+        Self::random_in_unit_sphere().normalize()
+    }
+
+    fn constrain_colour(colour: &Vec3, samples: u64) -> image::Rgb<u8> {
+        // Scale our colour values by how many samples we have taken
+        let scale = Vec3::new(1., 1., 1.) / samples as f64;
+        let mut colour = colour.component_mul(&scale);
+
+        // Simple gamma correction
+        colour = Self::sqrt(&colour);
+
+        // Clamp our values between 0. and 0.999 then multiply by 255 to get a value that will fit in a u8
+        colour.cap_magnitude(0.999);
+        colour = colour * 255.;
+
+        let cast_vec: [u8; 3] = [colour.x as u8, colour.y as u8, colour.z as u8];
+
+        image::Rgb([cast_vec[0], cast_vec[1], cast_vec[2]])
+    }
+
+    fn sqrt(vec: &Vec3) -> Vec3 {
+        Vec3::new(vec.x.sqrt(), vec.y.sqrt(), vec.z.sqrt())
+    }
+
+    pub fn clamp(vec: &mut Vec3, min: f64, max: f64) {
+        vec.x = vec.x.clamp(min, max);
+        vec.y = vec.y.clamp(min, max);
+        vec.z = vec.z.clamp(min, max);
     }
 }

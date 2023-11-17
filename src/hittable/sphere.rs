@@ -1,6 +1,7 @@
 use crate::hittable::{HitRecord, Hittable};
-use crate::renderer::{Ray, Vec3};
+use crate::renderer::Ray;
 
+type Vec3 = nalgebra::Vector3<f64>;
 /// A sphere Hittable that defines it's centre point and radius
 pub struct Sphere {
     pub centre: Vec3,
@@ -17,9 +18,9 @@ impl Hittable for Sphere {
     /// impl of the Hittable trait for the Sphere
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool {
         let oc = ray.orig - self.centre;
-        let a = ray.dir.length_squared();
+        let a = ray.dir.magnitude_squared();
         let half_b = oc.dot(&ray.dir);
-        let c = oc.length_squared() - self.radius * self.radius;
+        let c = oc.magnitude_squared() - self.radius * self.radius;
 
         let discriminant = half_b * half_b - a * c;
         if discriminant < 0.0 {
@@ -46,7 +47,9 @@ impl Hittable for Sphere {
 #[cfg(test)]
 mod tests {
     use crate::hittable::{HitRecord, Hittable, Sphere};
-    use crate::renderer::{Ray, Vec3};
+    use crate::renderer::Ray;
+
+    type Vec3 = nalgebra::Vector3<f64>;
 
     #[test]
     fn test_sphere_hit() {

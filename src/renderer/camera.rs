@@ -1,6 +1,7 @@
-use crate::renderer::{Ray, Vec3};
+use crate::renderer::Ray;
 
-use Vec3 as Point3;
+type Vec3 = nalgebra::Vector3<f64>;
+type Point3 = Vec3;
 pub struct Camera {
     pub origin: Point3,
     pub lower_left: Point3,
